@@ -1,6 +1,8 @@
 # 1. Any time you open a new terminal for this project, run:
 # source .venv/bin/activate
-
+#define BLYNK_TEMPLATE_ID "TMPL6Ivb1zVAm"
+#define BLYNK_TEMPLATE_NAME "SensePi"
+#define BLYNK_AUTH_TOKEN "rlae8SVJlydLMI-Y41NYARtBRA2Exvpy"
 
 #!/usr/bin/env python3
 import time, os
@@ -13,15 +15,31 @@ from picamera2 import Picamera2
 from upload_cloudinary import upload_image
 import paho.mqtt.client as mqtt
 
+import BlynkLib, os
+
+
+
+## --------------- Variables Global ---------------------------------------------------------------------
+# Blynk
+BLYNK_AUTH = 'rlae8SVJlydLMI-Y41NYARtBRA2Exvpy'
+# To avoid the error BlynkProtocol.__init__(self, auth, **kwargs)
+# reference to fix it: https://community.blynk.cc/t/python-library-with-local-server/36835
+# Initialize Blynk
+# blynk = BlynkLib.Blynk(BLYNK_AUTH,
+#                        server='xxx.xxx.xxx.xxx', # set server address, usually blynk.cloud
+#                        port=8080,              # set server port, Port 80 is the standard "front door" for the new Blynk cloud 
+#                        heartbeat=30,           # set heartbeat to 30 secs
+#                        )
+blynk = BlynkLib.Blynk(BLYNK_AUTH)
+
+# MQTT Mosquito
 MQTT_BROKER = "broker.hivemq.com"
 MQTT_PORT = 1883
 MQTT_TOPIC = "/mspi/event/pics"  # change to your own ID 
-
 client = mqtt.Client()
 client.connect(MQTT_BROKER, MQTT_PORT, 60)
 client.loop_start()
 
-## --------------- Variables Global ---------------------------------------------------------------------
 #use os to set up base and static folder 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__)) #get current directory
 STATIC_DIR = os.path.join(BASE_DIR, "static") #set static directory path
@@ -29,7 +47,6 @@ os.makedirs(STATIC_DIR, exist_ok=True) #create static directory if it doesn't ex
 IMAGE_PATH = os.path.join(STATIC_DIR, "last_visitor.jpg") #set image path
 STATE_DIR = os.path.join(BASE_DIR, "state") #It creates a variable named STATE_DIR that points to a folder called state inside your project folder.
 STATE_PATH = os.path.join(STATE_DIR, "pics.json") #It creates a variable called STATE_PATH that combines the folder location (STATE_DIR) with the specific filename pics.json.
-
 os.makedirs(STATE_DIR, exist_ok=True) #to create the folder state if doesn't exists.
 
 
@@ -40,14 +57,74 @@ def get_sensor_data():
     humidity = sense.get_humidity()
     return {"temperature": round(temp, 2), "humidity": round(humidity, 2)}
 
+
+
 # function to capture the photo and grab timestamp
-def capture_photo():
+def capture_photo(sensor_results):
     print("Capturing visitor photo...")
     picam2.capture_file(IMAGE_PATH)
+    print("Photo saved to:", IMAGE_PATH) # save the jpg image
+
+    # Visual feedback on Pi - Led Green
     sense.clear(0, 255, 0)  # flash green
     time.sleep(0.3)
     sense.clear(0, 0, 0)
-    print("Photo saved to:", IMAGE_PATH) # save the jpg image
+
+    # Update the Blynk Console (V0)
+    current_temp = sensor_results["temperature"]
+    current_humi = sensor_results["humidity"]
+    blynk.virtual_write(0, current_temp) 
+    blynk.virtual_write(1, current_humi) 
+    print(f"Sent to Blynk: Temp {current_temp}; Humidity {current_humi} to V0, V1")
+
+    # Trigger the Notification from Blynk
+    blynk.log_event("new_pic", f"New Picture! Temp: {current_temp}C \n https://raspberrypi-project.onrender.com/")
+    print("Notification triggered in Cloud -Blynk.")
+
+
+
+# Function os Sequence of actions, take picture, upload to cloudinary, json, MQTT
+def trigger_capture_sequence():    
+    print("Executing Capture Sequence...")
+    sensor_results = get_sensor_data()
+    
+    # 1. Take Photo
+    capture_photo(sensor_results)
+    
+    # 2. Upload to Cloudinary
+    print("Uploading to cloud...")
+    cloud_url = upload_image(IMAGE_PATH)
+    
+    # 3. Create Payload
+    payload = {
+        "ts": int(time.time()),
+        "url": cloud_url,
+        "temp": sensor_results["temperature"],
+        "humidity": sensor_results["humidity"]
+    }
+    
+    # 4. Save JSON and MQTT
+    with open(STATE_PATH, "w") as f:
+        json.dump(payload, f)
+    client.publish(MQTT_TOPIC, json.dumps(payload))
+    print("Sequence Complete.")
+
+    # 5 Blynk IMAGE GALLERY UPDATE
+    # This sends the URL to the Image Gallery widget
+    blynk.virtual_write(3, cloud_url) 
+    print(f"Blynk Gallery Updated: {cloud_url}")
+
+
+# Mobile Button to take a Picture
+@blynk.on("V2")
+def handle_v2_write(value):
+    button_value = int(value[0])
+    print(f'Current button value: {button_value}')
+
+    if button_value ==1:
+        print("Blynk App Triggered: Taking photo...")
+        trigger_capture_sequence()      
+   
 
 ## -------------- Main --------------------------------------------------------------------------
 sense = SenseHat()
@@ -59,36 +136,17 @@ picam2.start()
 time.sleep(2)  # Give the sensor 2 seconds to stabilize
 print("Camera started. Press the Sense HAT joystick (middle) to take a photo.")
 
+
+
 # Call capture_photo when SenseHat btn is pressed.
 try:
     while True:
+        blynk.run()
+        current_time = time.time()
+
         for event in sense.stick.get_events():
             if event.action == "pressed" and event.direction == "middle":
-                print("Button pressed at", datetime.now())
-                capture_photo()
-                sensor_results = get_sensor_data()
-
-                ### Uploading to Cloudinary
-                print("Uploading to cloud...")
-                cloud_url = upload_image(IMAGE_PATH)
-                print(f"State updated with new URL: {cloud_url}")
-
-                # creating the object
-                payload = {
-                    "ts": int(time.time()),
-                    "url": cloud_url,
-                    "temp": sensor_results["temperature"],
-                    "humidity": sensor_results["humidity"]
-                }
-                # writing pics.json with object information
-                with open(STATE_PATH, "w") as f:
-                    json.dump(payload, f)
-
-                # send the information fro payload (stringfied) to MQTT_TOPIC
-                client.publish(MQTT_TOPIC, json.dumps(payload))
-                print("MQTT event published:", payload)
-                
-                
+                trigger_capture_sequence()      
 
         time.sleep(0.1)
 except KeyboardInterrupt:
