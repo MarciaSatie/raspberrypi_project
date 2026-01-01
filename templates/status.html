@@ -18,6 +18,10 @@
       Last press: <strong>{{ last_event.time_str }}</strong><br>
       ({{ last_event.age }} seconds ago)
     </p>
+    <p>
+      Temperature: <strong>{{ last_event.temperature }}</strong><br>
+      Humidity: <strong>{{ last_event.humidity }}</strong><br>
+    </p>
     <img src="{{ last_event.url  }}"> 
   {% else %}
     <p>No button presses recorded yet.</p>

@@ -1,3 +1,7 @@
+# 1. Any time you open a new terminal for this project, run:
+# source .venv/bin/activate
+
+
 #!/usr/bin/env python3
 import time, os
 import json
@@ -30,6 +34,12 @@ os.makedirs(STATE_DIR, exist_ok=True) #to create the folder state if doesn't exi
 
 
 ## --------------- Funtions ---------------------------------------------------------------------
+# function to get temperature and humidity inforamation
+def get_sensor_data():
+    temp = sense.get_temperature()
+    humidity = sense.get_humidity()
+    return {"temperature": round(temp, 2), "humidity": round(humidity, 2)}
+
 # function to capture the photo and grab timestamp
 def capture_photo():
     print("Capturing visitor photo...")
@@ -46,6 +56,7 @@ sense.clear(0, 0, 0)
 picam2 = Picamera2()
 picam2.configure(picam2.create_still_configuration())
 picam2.start()
+time.sleep(2)  # Give the sensor 2 seconds to stabilize
 print("Camera started. Press the Sense HAT joystick (middle) to take a photo.")
 
 # Call capture_photo when SenseHat btn is pressed.
@@ -55,9 +66,8 @@ try:
             if event.action == "pressed" and event.direction == "middle":
                 print("Button pressed at", datetime.now())
                 capture_photo()
-    
+                sensor_results = get_sensor_data()
 
-                
                 ### Uploading to Cloudinary
                 print("Uploading to cloud...")
                 cloud_url = upload_image(IMAGE_PATH)
@@ -66,8 +76,10 @@ try:
                 # creating the object
                 payload = {
                     "ts": int(time.time()),
-                    "url": cloud_url
-                    }
+                    "url": cloud_url,
+                    "temp": sensor_results["temperature"],
+                    "humidity": sensor_results["humidity"]
+                }
                 # writing pics.json with object information
                 with open(STATE_PATH, "w") as f:
                     json.dump(payload, f)
