@@ -29,7 +29,7 @@ source .venv/bin/activate
 | --------------- | --------------------------------------- |
 | **Sensor**      | Raspberry Pi Camera Module              |
 | **Processing**  | Python + OpenCV for motion detection    |
-| **Network**     | Wi-Fi using HTTP REST API (and/or MQTT) |
+| **Network**     | Wi-Fi using MQTT
 | **Application** | Web dashboard (Flask + HTML/CSS/JS)     |
 
 ### 🛠 Technologies Used

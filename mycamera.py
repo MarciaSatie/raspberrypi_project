@@ -110,9 +110,10 @@ def trigger_capture_sequence():
     print("Sequence Complete.")
 
     # 5 Blynk IMAGE GALLERY UPDATE
-    # This sends the URL to the Image Gallery widget
-    blynk.virtual_write(3, cloud_url) 
-    print(f"Blynk Gallery Updated: {cloud_url}")
+    # Change the image at index 1 to a new URL
+    blynk.set_property(3, "urls",cloud_url)
+    blynk.virtual_write(3, 0)
+    print(f"Blynk Gallery Updated: {cloud_url}")s
 
 
 # Mobile Button to take a Picture
