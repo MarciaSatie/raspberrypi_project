@@ -65,6 +65,7 @@ mqtt_client.connect(MQTT_BROKER, MQTT_PORT, 60)
 mqtt_client.loop_start()  # run MQTT network loop in background thread
 
 
+
 # --- WEB ROUTES ---
 @app.route("/")
 def index():

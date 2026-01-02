@@ -1,42 +1,58 @@
 ### 📷 Smart Security & Monitoring System
 
-IoT Camera Platform – Raspberry Pi 4
+IoT TakePic Pi – Raspberry Pi 4 and Camera
 
 📌 Project Overview
 
-This project is a Smart Security & Monitoring System built using a Raspberry Pi 4 and a camera module.
-It is an IoT-based solution that captures real-world visual data, processes it locally, transmits it over a network, and displays it in a web-based application.
+TakePic Pi is a Raspberry Pi-based IoT project that combines sensing devices with remote image capture. It monitors temperature and humidity via the Sense HAT, captures photos using the Pi Camera, and streams both data and images to a Blynk mobile dashboard and Render website.
 
-The system detects motion, captures images when activity is detected, and makes them available to users through a browser-based dashboard.
-This simulates a real-world smart security product.
+### 🛠 How the Project Works
+This project connects hardware, cloud storage, and mobile interfaces to create a smart monitoring system. Here is the role of each component:
 
-This project was developed as part of a college IoT & Computer Systems assignment and follows a full IoT architecture.
+. Python: The "Brain" of the project that runs the logic and coordinates all the different services.
+. Raspberry Pi: The physical hardware that hosts the code, sensors, and camera.
+. Camera: Captures a photo whenever button is pressed (can be a physical button from SenseHat or from the mobile app).
+. MQTT: Updates Json file, send the information to a broker.
+. Cloudinary: A digital storage that hosts your photos online so they can be accessed from anywhere.
+. Blynk: To create a personal mobile dashboard used to view live temperature, humidity gauges and the image gallery and send a command to take teh picture to raspberry Pi.
+. MQTT: A "Broadcaster" that sends a data packet (JSON) to a public broker, mosquitto, every time a photo is taken.
+. Render: A web hosting service that runs your project's website, making your data visible in a standard browser.
 
-### Github project:
-https://github.com/MarciaSatie/raspberrypi_project
+
+# Clone the repository
+git clone https://github.com/MarciaSatie/raspberrypi_project
+cd pi_project
+
 
 ### Render Website link:
 https://raspberrypi-project.onrender.com
 
-1. Any time you open a new terminal for this project, run:
+### Set up virtual environment
+python -m venv .venv
 source .venv/bin/activate
 
-
-###🧱 IoT Architecture
-
-### 🔍 System Layers
-| Layer           | Implementation                          |
-| --------------- | --------------------------------------- |
-| **Sensor**      | Raspberry Pi Camera Module              |
-| **Processing**  | Python + OpenCV for motion detection    |
-| **Network**     | Wi-Fi using MQTT
-| **Application** | Web dashboard (Flask + HTML/CSS/JS)     |
+### Run main script:
+python mycamera.py
 
 ### 🛠 Technologies Used
 
 Raspberry Pi 4
 Raspberry Pi Camera
 Python
-Flask (Web Server & API)
 HTML
 MQTT
+Cloudinary
+Blynk
+
+### 🧱 IoT Architecture
+
+### 🔍 System Layers
+| Layer           | Implementation                          |
+| --------------- | --------------------------------------- |
+| **Sensor**      | Raspberry Pi Camera Module              |
+| **Processing**  | Python to process the information       |
+| **Network**     | Wi-Fi using MQTT                        |
+| **Cloud**       | Cloudinary to store the picture         |
+| **Application** | Render for Web dashboard                |
+| **Mobile App**  | Blynk for ceelphone's remote access     | 
+

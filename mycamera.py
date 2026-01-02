@@ -1,10 +1,9 @@
-# 1. Any time you open a new terminal for this project, run:
+# Any time you open a new terminal for this project, run:
 # source .venv/bin/activate
 #define BLYNK_TEMPLATE_ID "TMPL6Ivb1zVAm"
 #define BLYNK_TEMPLATE_NAME "SensePi"
 #define BLYNK_AUTH_TOKEN "rlae8SVJlydLMI-Y41NYARtBRA2Exvpy"
 
-#!/usr/bin/env python3
 import time, os
 import json
 from datetime import datetime
@@ -35,7 +34,7 @@ blynk = BlynkLib.Blynk(BLYNK_AUTH)
 # MQTT Mosquito
 MQTT_BROKER = "broker.hivemq.com"
 MQTT_PORT = 1883
-MQTT_TOPIC = "/mspi/event/pics"  # change to your own ID 
+MQTT_TOPIC = "/mspi/event/pics"  
 client = mqtt.Client()
 client.connect(MQTT_BROKER, MQTT_PORT, 60)
 client.loop_start()
@@ -106,6 +105,7 @@ def trigger_capture_sequence():
     # 4. Save JSON and MQTT
     with open(STATE_PATH, "w") as f:
         json.dump(payload, f)
+        
     client.publish(MQTT_TOPIC, json.dumps(payload))
     print("Sequence Complete.")
 
