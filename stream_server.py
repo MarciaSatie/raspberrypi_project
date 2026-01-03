@@ -6,6 +6,7 @@ import numpy as np #  organize the sequence of data, pixels, (that will become i
 import cv2 # OpenCV --> most popular computer vision library, will transform the data in JPEG image
 import io # Stores the jpeg images temporary in the RAM memory
 from flask import Flask, Response # It creates a web address (/video_feed) that stays open and keeps "serving" data.
+import socket # to get current ip address (the ip can change time from time, so we will need to update the local path on blink once starting the streaming)
 
 app = Flask(__name__)
 
@@ -86,3 +87,21 @@ def run_server(camera_obj):
     # port=5000 (The "Door" Number)
     # threaded=True (Handling Multiple Visitors)
     app.run(host='0.0.0.0', port=5000, threaded=True, use_reloader=False)
+
+# Blynk (Video Streming): Updating local host IP address (just in case) once starting the code
+# reference: https://stackoverflow.com/questions/166506/finding-local-ip-addresses-using-pythons-stdlib
+def get_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.settimeout(0)
+    try:
+        # doesn't even have to be reachable
+        s.connect(('10.254.254.254', 1))
+        IP = s.getsockname()[0]
+        stream_url = f"http://{IP}:5000/video_feed"
+    except Exception:
+        IP = '127.0.0.1'
+    finally:
+        s.close()
+    return stream_url
+    
+print(get_ip())
