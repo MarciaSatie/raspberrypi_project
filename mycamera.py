@@ -16,6 +16,9 @@ import paho.mqtt.client as mqtt
 
 import BlynkLib, os
 
+import threading # to manage multitask tasks (streaming and take pictures for example)
+from stream_server import run_server # Import your engine
+
 
 
 ## --------------- Variables Global ---------------------------------------------------------------------
@@ -132,11 +135,19 @@ sense.clear(0, 0, 0)
 
 picam2 = Picamera2()
 picam2.configure(picam2.create_still_configuration())
+config = picam2.create_video_configuration(main={"size": (640, 480)})
+picam2.configure(config)
 picam2.start()
 time.sleep(2)  # Give the sensor 2 seconds to stabilize
 print("Camera started. Press the Sense HAT joystick (middle) to take a photo.")
 
+# 3. START STREAM SERVER IN BACKGROUND
+# We pass the 'picam2' object to the server so it can use it
+server_thread = threading.Thread(target=run_server, args=(picam2,))
+server_thread.daemon = True
+server_thread.start()
 
+print("Server is live at: http://hdiprpi.local:5000/video_feed")
 
 # Call capture_photo when SenseHat btn is pressed.
 try:

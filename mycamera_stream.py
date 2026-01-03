@@ -3,6 +3,7 @@ import threading
 from picamera2 import Picamera2
 import BlynkLib, os
 from stream_server import run_server # Import your engine
+import socket # to get current ip address (the ip can change time from time, so we will need to update the local path on blink once starting the streaming)
 
 # 1. SETUP BLYNK
 BLYNK_AUTH = 'rlae8SVJlydLMI-Y41NYARtBRA2Exvpy'
@@ -21,7 +22,7 @@ server_thread = threading.Thread(target=run_server, args=(picam2,))
 server_thread.daemon = True
 server_thread.start()
 
-print("Server is live at: http://192.168.224.115:5000/video_feed")
+print("Server is live at: http://hdiprpi.local:5000/video_feed")
 
 # 4. BLYNK ACTION
 @blynk.on("V2")
