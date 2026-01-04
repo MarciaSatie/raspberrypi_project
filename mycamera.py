@@ -16,11 +16,16 @@ import BlynkLib, os
 import threading # to manage multitask tasks (streaming and take pictures for example)
 from stream_server import run_server, get_ip, get_global_url # Importing methods from stream_server.py
 
-
+from dotenv import load_dotenv # load my secret keys from my local .env file
+# reference: https://github.com/orgs/community/discussions/151885
 
 ## --------------- Variables Global ---------------------------------------------------------------------
+
+load_dotenv()  # Loads the .env file (not uploaded to Github)
+
 # Blynk
-BLYNK_AUTH = 'rlae8SVJlydLMI-Y41NYARtBRA2Exvpy'
+blynk_key = os.getenv('BLYNK_KEY')
+BLYNK_AUTH = blynk_key
 # To avoid the error BlynkProtocol.__init__(self, auth, **kwargs)
 # reference to fix it: https://community.blynk.cc/t/python-library-with-local-server/36835
 # Initialize Blynk
@@ -57,7 +62,6 @@ def get_sensor_data():
     return {"temperature": round(temp, 2), "humidity": round(humidity, 2)}
 
 
-
 # function to capture the photo and grab timestamp
 def capture_photo(sensor_results):
     print("Capturing visitor photo...")
@@ -81,7 +85,6 @@ def capture_photo(sensor_results):
     print("Notification triggered in Cloud -Blynk.")
 
 
-
 # Function os Sequence of actions, take picture, upload to cloudinary, json, MQTT
 def trigger_capture_sequence():    
     print("Executing Capture Sequence...")
@@ -99,7 +102,8 @@ def trigger_capture_sequence():
         "ts": int(time.time()),
         "url": cloud_url,
         "temp": sensor_results["temperature"],
-        "humidity": sensor_results["humidity"]
+        "humidity": sensor_results["humidity"],
+        "url_video":video_path
     }
     
     # 4. Save JSON and MQTT
@@ -126,8 +130,19 @@ def handle_v2_write(value):
         trigger_capture_sequence()      
    
 
+def updateJson(ObjKey, content, filename):
+    # 1. Read the existing data from the file
+    with open(filename, 'r') as file:
+        # json.load() converts JSON data into a Python dictionary/list
+        data = json.load(file)
 
+    # 2. Modify the data (in this case, change the 'age' field)
+    data[ObjKey] = content
 
+    # 3. Write the modified data back to the same file
+    with open(filename, 'w') as file:
+        # json.dump() converts the Python object back to a JSON string and writes to the file
+        json.dump(data, file) # Using indent for pretty printing
 
 ## -------------- Main --------------------------------------------------------------------------
 sense = SenseHat()
@@ -149,7 +164,10 @@ server_thread.start()
 
 video_path = get_global_url() 
 print(f"Server is live at: {video_path}")
+
 blynk.set_property(4, "url", video_path) # updating streaming url path at Blynk
+updateJson("url_video", video_path, STATE_PATH) # updating video path from JSON
+blynk.virtual_write(4, video_path)
 
 # Call capture_photo when SenseHat btn is pressed.
 try:

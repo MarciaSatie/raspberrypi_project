@@ -117,6 +117,9 @@ print(get_ip())
 # referencce subprocess.Popen; https://www.geeksforgeeks.org/python/python-subprocess-module/
 # reference TryCloudflare "free" tunnel: https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/do-more-with-tunnels/trycloudflare/
 def get_global_url():
+    # Kill any old zombie processes
+    print("🧹 Cleaning up old tunnel processes...")
+    os.system("sudo pkill cloudflared")
     
     # this will start a new tunel and return the information inside of tunnel.log file
     with open("tunnel.log", "w") as f:
@@ -126,7 +129,8 @@ def get_global_url():
     
     # 2. Try for 15 seconds
     for _ in range(15):
-        time.sleep(1)
+
+        time.sleep(2) # Give the OS a moment to release the port
         if os.path.exists("tunnel.log"):
             with open("tunnel.log", "r") as f:
                 log_content = f.read()

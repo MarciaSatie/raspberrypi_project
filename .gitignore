@@ -1,0 +1,16 @@
+# 1. Secrets and Credentials (VITAL)
+.env
+
+# 2. Python Environment & Cache
+__pycache__/
+.venv/
+*.py[cod]
+
+# 3. Project Specific Logs & Temps
+tunnel.log
+static/last_visitor.jpg
+*.log
+
+# 4. OS Specific (Optional but clean)
+.DS_Store
+Thumbs.db
