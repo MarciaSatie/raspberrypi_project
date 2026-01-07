@@ -66,6 +66,7 @@ Github
 | **Network**     | Wi-Fi using MQTT,Cloudflare Tunnel      |
 | **Cloud**       | Cloudinary to store the picture         | 
 |   **Cloud**     | Cloudiflare to provide Url for streaming|
+|  **Database**   | JSON used as a flat-file-database|
 | **Application** | Render for Web dashboard                |
 | **Mobile App**  | Blynk for cellphone's remote access     | 
 
