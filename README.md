@@ -49,6 +49,7 @@ python mycamera.py
 
 * Raspberry Pi 4
 * Raspberry Pi Camera
+* Raspberry Pi SenseHat
 * Python
 * HTML
 * MQTT
@@ -63,9 +64,9 @@ python mycamera.py
 
 | Layer           | Implementation                          |
 | --------------- | --------------------------------------- |
-| **Sensor**      | Raspberry Pi Camera Module              |
+| **Sensor**      | Raspberry Pi Camera Module and SenseHat |
 | **Processing**  | Python to process the information       |
-| **Network**     | Wi-Fi using MQTT,Cloudflare Tunnel      |
+| **Network**     | Wi-Fi using MQTT                        |
 | **Cloud**       | Cloudinary to store the picture         | 
 |   **Cloud**     | Cloudiflare to provide Url for streaming|
 |   **Database**  | JSON, used as Flat-File-Database        |
