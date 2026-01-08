@@ -45,17 +45,19 @@ BLYNK_KEY='<ADD YOUR BLYNK AUTH KEY HERE>'
 ```python
 python mycamera.py
 ```
-### 🛠 Technologies Used
+## 🛠 Tools, Technologies and Equipment
 
-Raspberry Pi 4
-Raspberry Pi Camera
-Python
-HTML
-MQTT
-Cloudinary
-CloudFlare
-Blynk
-Github
+* Raspberry Pi 4
+* Raspberry Pi Camera
+* Python
+* HTML
+* MQTT
+* Cloudinary
+* CloudFlare
+* Blynk
+* Github
+* JSON
+* Render
 
 ### 🧱 IoT Architecture
 
@@ -66,9 +68,11 @@ Github
 | **Network**     | Wi-Fi using MQTT,Cloudflare Tunnel      |
 | **Cloud**       | Cloudinary to store the picture         | 
 |   **Cloud**     | Cloudiflare to provide Url for streaming|
-|  **Database**   | JSON used as a flat-file-database|
+|   **Database**  | JSON, used as Flat-File-Database        |
 | **Application** | Render for Web dashboard                |
 | **Mobile App**  | Blynk for cellphone's remote access     | 
+| **Website**     | Render web site                         | 
+
 
 ### 🎓 Learning resorces:
 #### Logic
