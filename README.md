@@ -53,6 +53,7 @@ python mycamera.py
 * Python
 * HTML
 * MQTT
+* FLask
 * Cloudinary
 * CloudFlare
 * Blynk
@@ -66,14 +67,13 @@ python mycamera.py
 | --------------- | --------------------------------------- |
 | **Sensor**      | Raspberry Pi Camera Module and SenseHat |
 | **Processing**  | Python to process the information       |
-| **Network**     | Wi-Fi using MQTT                        |
+| **Network**     | Wi-Fi using MQTT, Flask                 |
 | **Cloud**       | Cloudinary to store the picture         | 
-|   **Cloud**     | Cloudiflare to provide Url for streaming|
+|   **Cloud**     | Cloudiflare to provide URL for streaming|
 |   **Database**  | JSON, used as Flat-File-Database        |
 | **Application** | Render for Web dashboard                |
 | **Mobile App**  | Blynk for cellphone's remote access     | 
 | **Website**     | Render web site                         | 
-
 
 ### 🎓 Learning resorces:
 #### Logic
